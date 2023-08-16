@@ -3,6 +3,7 @@ const app = express() ;
 const morgan = require('morgan') //middleware
 const createError = require('http-errors') 
 const route = require('./Routes/route')
+const db =require("./database/db")
 
 app.use(morgan('dev'))
 app.use('/auth',route)
