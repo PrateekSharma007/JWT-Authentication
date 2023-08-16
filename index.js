@@ -4,6 +4,7 @@ const morgan = require('morgan') //middleware
 const createError = require('http-errors') 
 const route = require('./Routes/route')
 const db =require("./database/db")
+const mongoose = require("mongoose")
 
 app.use(morgan('dev'))
 app.use('/auth',route)

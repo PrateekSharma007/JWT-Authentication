@@ -1,14 +1,13 @@
 const express = require("express") ; 
 const app = express() ; 
 const router = express.Router() ;
+const control = require("../Controllers/control")
 
-router.post('/signup' , (req,res) => { 
-    res.send("Signup here")
-})
+router.post('/signup' ,control.signup )
 
 
 router.post("/login" ,(req,res) => { 
-    res.send("Login here") ;
+    res.send("Login here");
 })
 
 router.post('/refresh-token',(req,res) => { 
