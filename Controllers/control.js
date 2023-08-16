@@ -13,22 +13,27 @@ const signup = async (req, res, next) => {
         const { name, email, password } = req.body;
 
         const check = await user.find({ email }).then((result) => {
-            if (result) {
-                throw createError.Conflict("User with same email");
-            }  
-        })
-        const newuser = await new details({
-            name: name,
-            email: email,
-            password: password
+            if (result && result.length>0) {
+                throw createError.BadRequest("Email is already registered")
+               console.log('user is already there');
+            }else{
+                console.log('to add the user request')
+                const User = new user({
+                    name: name,
+                    email: email,
+                    password: password
 
+                })
+                const save = User.save();
+                res.json(save);
+            }
         })
-        const save = await newuser.save();
-        res.send(save);
+
 
 
     } catch (err) {
-        res.send(err);
+        console.log('some error',err)
+        res.status(404).json(err);
     }
 }
 
