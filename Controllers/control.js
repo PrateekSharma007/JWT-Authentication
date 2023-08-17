@@ -49,12 +49,18 @@ const login =async (req,res,next) =>{
         const { name, email, password } = req.body;
         // const result = await user.validateAsync(req.body)
         ans = true ;
-        const check = user.findOne({ email}).then(result =>{
-            if(result && result.length>0){
+        const check = user.find({ email}).then(result =>{
+            console.log(result)
+            if(result[0].email ){
+                console.log("hello")
                 ans =false;
                 const isMatch =  user.isValidPassword(result.password);
                 if(!isMatch) throw createError.NotFound("Email/password not match")
-                else res.send("succeful login in")
+                else {
+                    const accesstoken =  signaccesstoken(user.id)
+                    res.send(accesstoken);
+                    // res.send("succeful login in")
+                }
             }
         });
         if(ans == true) throw createError.NotFound("User not found")
