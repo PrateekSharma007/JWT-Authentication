@@ -40,7 +40,7 @@ Details.methods.isValidPassword = async function(password){
     return await bcrypt.compare(password,this.password) ;
   }
   catch(err){
-    throw error;
+    throw err;
   }
 }
 

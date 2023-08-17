@@ -30,8 +30,9 @@ const signup = async (req, res, next) => {
         // res.json(save);
         const accesstoken = await signaccesstoken(save.id);
         // console.log(accesstoken)
-        res.json(accesstoken)
+        // res.json(accesstoken)
         // res.json(save)
+        res.json(save)
 
 
 
@@ -46,13 +47,18 @@ const signup = async (req, res, next) => {
 const login =async (req,res,next) =>{
     try{
         const { name, email, password } = req.body;
-        const check = await user.findOne({ email }).then((result) => {
-            if (result && result.length > 0) {
-                res.send("Found")
+        // const result = await user.validateAsync(req.body)
+        ans = true ;
+        const check = user.findOne({ email}).then(result =>{
+            if(result && result.length>0){
+                ans =false;
+                const isMatch =  user.isValidPassword(result.password);
+                if(!isMatch) throw createError.NotFound("Email/password not match")
+                else res.send("succeful login in")
             }
-        })
-        throw createError.NotFound("No such user found")
-
+        });
+        if(ans == true) throw createError.NotFound("User not found")
+        
     }
     catch(err){
         res.send(err);
