@@ -35,5 +35,16 @@ Details.pre('save',async function(next){
       }
 })
 
+Details.methods.isValidPassword = async function(password){
+  try{
+    return await bcrypt.compare(password,this.password) ;
+  }
+  catch(err){
+    throw error;
+  }
+}
+
+
+
 
 module.exports  = mongoose.model('user',Details) ;

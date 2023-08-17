@@ -51,7 +51,7 @@ const login =async (req,res,next) =>{
                 res.send("Found")
             }
         })
-        
+        throw createError.NotFound("No such user found")
 
     }
     catch(err){
