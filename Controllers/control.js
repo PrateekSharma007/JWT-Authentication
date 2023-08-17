@@ -13,7 +13,7 @@ const signup = async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
 
-        const check = await user.find({ email }).then((result) => {
+        const check = await user.findOne({ email }).then((result) => {
             if (result && result.length > 0) {
                 throw createError.BadRequest("Email is already registered")
                 console.log('user is already there');
@@ -31,6 +31,7 @@ const signup = async (req, res, next) => {
         const accesstoken = await signaccesstoken(save.id);
         // console.log(accesstoken)
         res.json(accesstoken)
+        // res.json(save)
 
 
 
@@ -42,10 +43,20 @@ const signup = async (req, res, next) => {
 
 //login 
 
+const login =async (req,res,next) =>{
+    try{
+        const { name, email, password } = req.body;
+        const check = await user.findOne({ email }).then((result) => {
+            if (result && result.length > 0) {
+                res.send("Found")
+            }
+        })
+        
 
+    }
+    catch(err){
+        res.send(err);
+    }
+}
 
-
-
-
-
-module.exports = { signup }
+module.exports = { signup,login }
