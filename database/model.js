@@ -36,10 +36,14 @@ Details.pre('save', function(next){
 })
 
 Details.methods.isValidPassword = async function(password){
+  
   try{
+    console.log("this")
     return await bcrypt.compare(password,this.password) ;
+    
   }
   catch(err){
+    console.log("errrr")
     throw err;
   }
 }
