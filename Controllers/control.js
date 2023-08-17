@@ -3,6 +3,7 @@ const user = require('../database/model')
 const db = require('../database/db')
 const createError = require("http-errors");
 const { signaccesstoken } = require('../Jwt/jwt1');
+const bcrypt = require("bcrypt")
 
 
 
@@ -49,26 +50,31 @@ const login =async (req,res,next) =>{
         const { name, email, password } = req.body;
         // const result = await user.validateAsync(req.body)
         ans = true ;
-        const newuser = await user.find({ email});
+        user.findOne({ email })
+        .then(user => {
+            //if user not exist than return status 400
+            if (!user) return res.status(400).json({ msg: "User not exist" })
 
-        if(newuser){
-            console.log(newuser)
-            console.log("hello")
-            const isMatch = await newuser.isValidPassword(password);
-            if(isMatch){
-                console.log('matching password')
-                res.send("login succesful")
-            }else{
-                console.log('pwd dont m atch')
-            }
-        }else{
-            throw new Error('the user doesnt exist')
-        }
-        if(ans == true) throw createError.NotFound("User not found")
+            //if user exist than compare password
+            //password comes from the user
+            //user.password comes from the database
+            bcrypt.compare(password, user.password, (err, data) => {
+                //if error than throw error
+                if (err) throw err
 
+                //if both match than you can do anything
+                if (data) {
+                    return res.status(200).json({ msg: "Login success" })
+                } else {
+                    return res.status(401).json({ msg: "Invalid credencial" })
+                }
+
+            })
+
+        })
     }
     catch(err){
-        res.send(err);
+        res.json(err);
     }
 }
 
