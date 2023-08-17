@@ -21,12 +21,12 @@ const Details = mongoose.Schema({
     }
 })
 
-Details.pre('save',async function(next){
+Details.pre('save', function(next){
     try {
        
         if (this.isNew) {
-          const salt = await bcrypt.genSalt(10)
-          const hash = await bcrypt.hash(this.password, salt)
+          const salt =  bcrypt.genSalt(10)
+          const hash =  bcrypt.hash(this.password, salt)
           this.password = hash
         }
         next()
