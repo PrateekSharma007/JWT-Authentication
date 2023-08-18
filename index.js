@@ -21,6 +21,7 @@ app.post("/", auth, (req, res) => {
 })
 
 
+
 app.get("/",async (req,res) => { 
     res.send('Auth Started')
 })
