@@ -12,10 +12,13 @@ const Details = mongoose.Schema({
         required : true,
         lowercase : true,
         unique : true,
+        // email validation
     },
     password : {
         type: String, 
         requires : true ,
+        minlength : 5,
+        maxlength: 30
 
     },
     token : {
