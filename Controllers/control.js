@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 const user = require('../database/model')
 const db = require('../database/db')
-const createError = require("http-errors");
-const { signaccesstoken } = require('../Jwt/jwt1');
+const createError = require("http-errors");     
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
@@ -17,8 +16,10 @@ const signup = async (req, res, next) => {
 
         const check = await user.findOne({ email }).then((result) => {
             if (result && result.length > 0) {
-                throw createError.BadRequest("Email is already registered")
-                console.log('user is already there');
+                // throw createError.BadRequest("Email is already registered")
+                // res.json({"email" :"email is registered"})
+                res.send("error")
+                // console.log('user is already there');
             }
         })
         console.log('to add the user request')
@@ -27,18 +28,20 @@ const signup = async (req, res, next) => {
             email: email,
             password: password
         })
-        const save = await User.save();
+        
         const token = jwt.sign(
             { user_id: user._id, email },
-            "c304a44766afb7c1174f138c00e629b9a3e24dd06b4258b3f5f25e09818c5507",
+            '544b7617c7a21c12f27eacbbfa9d38c914345d04f8760e5ac6ee77c814b747bd',
             {
-              expiresIn: "1h",
+              expiresIn: "2h",
             }
           );
     
         user.token = token;
-        res.json(user)
-        // res.json(save)
+        console.log(token)
+        const save = await User.save();
+        // res.json(user)
+        res.json(save)
 
     } catch (err) {
         console.log('some error', err)
@@ -66,13 +69,15 @@ const login =async (req,res,next) =>{
                 if (data) {
                     const token = jwt.sign(
                         { user_id: user._id, email },
-                        "c304a44766afb7c1174f138c00e629b9a3e24dd06b4258b3f5f25e09818c5507",
+                        '544b7617c7a21c12f27eacbbfa9d38c914345d04f8760e5ac6ee77c814b747bd',
+
                         {
                           expiresIn: "1h",
                         }
                       );
                 
                       user.token = token;
+                      console.log(token)
                       res.json(user)
                 } else {
                     return res.status(401).json({ msg: "Invalid credencial" })

@@ -10,12 +10,6 @@ router.post('/signup' ,signup )
 
 router.post("/login" , login)
 
-// router.post('/refresh-token',(req,res) => { 
-//     res.send("register route")
-// })
 
-// router.delete('/logout',(req,res) => { 
-//     res.send("logout route") ;
-// })
 
 module.exports = router;

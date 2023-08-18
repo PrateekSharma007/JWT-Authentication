@@ -17,6 +17,9 @@ const Details = mongoose.Schema({
         type: String, 
         requires : true ,
 
+    },
+    token : {
+      type: String
     }
 })
 

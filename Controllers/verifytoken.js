@@ -5,17 +5,20 @@ const verifyToken = (req, res, next) => {
 
 
     const token =
-        req.body.token || req.query.token || req.headers["x-access-token"];
+        req.body.token || req.query.token || req.headers['token'];
 
     if (!token) {
         return res.status(403).send("A token is required for authentication");
     }
     try {
-        console.log("here1")
-        const decoded = jwt.verify(token, "c304a44766afb7c1174f138c00e629b9a3e24dd06b4258b3f5f25e09818c5507");
+        // console.log("here1")
+        console.log("token")
+        const decoded = jwt.verify(token, "544b7617c7a21c12f27eacbbfa9d38c914345d04f8760e5ac6ee77c814b747bd");
         req.user = decoded;
+        res.send(decoded)
+        // console.log(decoded)
     } catch (err) {
-        console.log("here2")
+        // console.log("here2")
         return res.status(401).send("Invalid Token");
     }
     return next();
