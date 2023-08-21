@@ -97,4 +97,9 @@ const login = async (req, res, next) => {
 }
 
 
+//otp verification 
+
+const 
+
+
 module.exports = { signup, login }
