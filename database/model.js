@@ -23,6 +23,9 @@ const Details = mongoose.Schema({
     },
     token : {
       type: String
+    },
+    verification : {
+      Boolean : false
     }
 })
 
