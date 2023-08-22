@@ -5,6 +5,34 @@ const createError = require("http-errors");
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const emailValidator = require('email-validator');
+const userverification = require("../database/otp")
+const { v4: uuidv4 } = require('uuid');
+const nodemailer = require("nodemailer");
+const { response } = require('express');
+require("dotenv").config({path : '../.env'}) ;
+
+//transporter
+
+
+const transporter = nodemailer.createTransport({
+    service : "Gmail" ,
+    auth : { 
+        user : 'sharma.prateek0000@gmail.com',
+        pass : 'hohx urhz dezl bpjd'
+    }
+})
+
+transporter.verify((err,success) => { 
+    if(err){
+        console.log(err) ;
+    }else{
+        console.log("OK")
+    }
+})
+
+//sending otp
+
+
 
 
 
@@ -35,7 +63,8 @@ const signup = async (req, res, next) => {
         const User = await new user({
             name: name,
             email: email,
-            password: password
+            password: password,
+            verification: false
         });
 
         const token = jwt.sign(
@@ -47,7 +76,8 @@ const signup = async (req, res, next) => {
         );
 
         User.token = token;
-        const save = await User.save();
+        const verify = await sendVerificationemail(result,response)
+        // const save = await User.save();
         res.json({ "token": token });
     } catch (err) {
         res.json({ msg: err });
@@ -98,8 +128,6 @@ const login = async (req, res, next) => {
 
 
 //otp verification 
-
-const 
 
 
 module.exports = { signup, login }
