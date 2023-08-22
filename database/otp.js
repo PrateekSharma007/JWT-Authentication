@@ -9,5 +9,5 @@ const Otpverification = mongoose.Schema({
 
 })
 
-module.exports = mongoose.model("userotp",Otpverification);
+module.exports = mongoose.model("userverification",Otpverification);
 
