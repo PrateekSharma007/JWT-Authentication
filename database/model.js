@@ -11,7 +11,7 @@ const DetailsSchema = new mongoose.Schema({
     required: true,
     lowercase: true,
     unique: true,
-    // email validation
+    
   },
   password: {
     type: String,
@@ -22,9 +22,19 @@ const DetailsSchema = new mongoose.Schema({
   token: {
     type: String,
   },
-  verification: {
-    type: Boolean, // Corrected: Change 'Boolean' to 'Boolean'
-    default: false, // Set the default value to false
+  otp: {
+    type: String,
+  },
+  createdat: {
+    type: Date,
+    default: Date.now,
+  },
+  expiresat: {
+    type: Date,
+    default: function () {
+      const expire = 1 * 60 * 1000;
+      return new Date(Date.now() + expire);
+    },
   },
 });
 
@@ -40,5 +50,6 @@ DetailsSchema.pre('save', async function (next) {
     next(error);
   }
 });
+
 
 module.exports = mongoose.model('user', DetailsSchema);
