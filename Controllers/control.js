@@ -1,15 +1,11 @@
 const mongoose = require('mongoose');
 const user = require('../database/model')
 const db = require('../database/db')
-const createError = require("http-errors");
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const emailValidator = require('email-validator');
-const userverification = require("../database/otp")
-const { v4: uuidv4 } = require('uuid');
 const nodemailer = require("nodemailer");
-const { response } = require('express');
-require("dotenv").config({path : '../.env'}) ;
+require('dotenv').config() 
 
 //transporter
 
@@ -17,22 +13,44 @@ require("dotenv").config({path : '../.env'}) ;
 const transporter = nodemailer.createTransport({
     service : "Gmail" ,
     auth : { 
-        user : 'sharma.prateek0000@gmail.com',
-        pass : 'hohx urhz dezl bpjd'
+        user: process.env.Auth_email,   
+        pass: process.env.Auth_pass,
     }
 })
 
-transporter.verify((err,success) => { 
-    if(err){
-        console.log(err) ;
-    }else{
-        console.log("OK")
+
+//generateotp 
+
+const generateOtp = () => {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  };
+  
+  // Send OTP email
+  const sendOtpEmail = async (email, otp) => {
+    try {
+      const mailOptions = {
+        from: process.env.Auth_email,
+        to: email,
+        subject: 'OTP Verification',
+        html: `<p>Your OTP: ${otp}</p>`,
+      };
+  
+      await transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw error;
     }
-})
-
-//sending otp
+  };
 
 
+//Delete otp ; 
+
+const deleteotp = async(email) => { 
+    try {
+        await user.deleteOne({email});
+    } catch (error) {
+        throw error;
+    }
+}
 
 
 
@@ -64,21 +82,28 @@ const signup = async (req, res, next) => {
             name: name,
             email: email,
             password: password,
-            verification: false
+           
         });
+
+
+
 
         const token = jwt.sign(
             { user_id: User._id },
-            '544b7617c7a21c12f27eacbbfa9d38c914345d04f8760e5ac6ee77c814b747bd',
+            process.env.Secret_key,
             {
                 expiresIn: "3h",
             }
         );
 
         User.token = token;
-        const verify = await sendVerificationemail(result,response)
-        // const save = await User.save();
-        res.json({ "token": token });
+        const otp = generateOtp();
+        User.otp = otp;
+        
+        const save = await User.save();
+        await sendOtpEmail(email, otp);
+        // res.json({ msg: token });
+        res.send(`Otp has been sent succesfully to ${email} , please verify it!`)
     } catch (err) {
         res.json({ msg: err });
     }
@@ -104,7 +129,7 @@ const login = async (req, res, next) => {
                     if (data) {
                         const token = jwt.sign(
                             { user_id: user._id, },
-                            '544b7617c7a21c12f27eacbbfa9d38c914345d04f8760e5ac6ee77c814b747bd',
+                            process.env.Secret_key,
 
                             {
                                 expiresIn: "3h",
@@ -129,5 +154,35 @@ const login = async (req, res, next) => {
 
 //otp verification 
 
+const verifyOTP = async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+      if (!email || !otp) {
+        throw new Error("Missing email or OTP");
+      }
+  
+      const User = await user.findOne({ email }); 
+  
+      if (!User) {
+        throw new Error("User not found");
+      }
+  
+      if (User.expiresat < Date.now()) {
+        throw new Error("OTP has expired");
+      }
+  
+      if (User.otp === otp) {
+        res.status(200).json({ msg: "Sign up successful" });
+      } else {
+        await deleteotp(email);
+        res.status(401).json({ msg: "Otp is wrong, please do the sign up again" });//change to wrong otp
+      }
+    } catch (err) {
+        await deleteotp(email);
+      res.status(400).json({ error: err.message });
+    }
+  };
+  
 
-module.exports = { signup, login }
+
+module.exports = { signup, login,verifyOTP }
