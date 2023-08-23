@@ -126,7 +126,7 @@ const login = async (req, res, next) => {
     const isPasswordMatch = await bcrypt.compare(password, User.password);
     // console.log("password")
     if (isPasswordMatch) {
-      // console.log(User.verification)/
+      // console.log(User.verification)
       if (User.verification === false) {
         // console.log("1")
         const otp = generateOtp() ;
