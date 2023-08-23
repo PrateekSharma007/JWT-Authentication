@@ -162,10 +162,7 @@ const login = async (req, res, next) => {
 
 
 
-
-
 //otp verification 
-
 const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
   const User = await user.findOne({ email });
@@ -199,4 +196,129 @@ const verifyOTP = async (req, res) => {
 
 
 
-module.exports = { signup, login,verifyOTP }
+// 
+
+const verifyOTPpass = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      throw new Error("Missing email or OTP");
+    }
+
+    const User = await user.findOne({ email });
+    if (!User) {
+      throw new Error("User not found");
+    }
+
+    if (User.expiresat < Date.now()) {
+      throw new Error("OTP has expired");
+    }
+
+    if (User.otp === otp) {
+      User.verification = true;
+      await User.save();
+      res.status(200).json({ msg: "Verification successful" });
+    } else {
+      res.status(401).json({ msg: "Incorrect OTP, please try again" });
+    }
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+
+const sendOtpEmailpass = async (email, otp) => {
+  try {
+    const mailOptions = {
+      from: process.env.Auth_email,
+      to: email,
+      subject: 'Password reset',
+      html: `<p>Your OTP: ${otp}</p>`,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const passwordresetotp = async (email) => {
+  try {
+    const User = await user.findOne({ email });
+    if (!User) throw new Error("No such email found, first sign up");
+
+    if (!User.verification) throw new Error("Please verify your email first");
+
+    const otp = generateOtp();
+    User.otp = otp;
+    User.expiresat = Date.now() + 1 * 60 * 1000; 
+    await User.save();
+
+    await sendOtpEmailpass(User.email, otp);
+  } catch (err) {
+    throw err;
+  }
+};
+
+const forgot_password = async (req,res) => {
+  try {
+    const { email } = req.body;
+    if (!email) throw new Error("An email is required");
+
+    await passwordresetotp(email);
+
+    res.status(200).json({ msg: "Password reset OTP sent successfully" });
+  } catch (error) {
+    console.log("forgot_password")
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const resetpass = async ({ email, otp, newpassword }) => {
+  try {
+    const isOTPVerified = await verifyOTPpass({ email, otp });
+
+    if (isOTPVerified) {
+      const hashedPassword = await bcrypt.hash(newpassword, 10);
+      const User = await user.findOne({ email });
+      User.password = hashedPassword;
+      User.otp = "";
+      await User.save();
+      return true; 
+    } else {
+      return false; 
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+
+
+const reset = async (req, res) => {
+  try {
+    const { email, otp, newpassword } = req.body;
+    if (!email || !otp || !newpassword) {
+      throw new Error("All fields are required");
+    }
+
+    if (newpassword.length < 5) {
+      throw new Error("Password length should be greater than 5");
+    }
+
+    const isPasswordResetSuccessful = await resetpass({ email, otp, newpassword });
+
+    if (isPasswordResetSuccessful) {
+      res.status(200).json({ msg: "Password reset successful" });
+    } else {
+      res.status(400).json({ msg: "Password reset failed due to incorrect OTP" });
+    }
+  } catch (error) {
+    console.error("Error in reset:", error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+
+module.exports = { signup, login, verifyOTP, forgot_password, reset };
