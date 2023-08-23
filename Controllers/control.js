@@ -200,7 +200,7 @@ const verifyOTP = async (req, res) => {
 
 const verifyOTPpass = async (email, otp) => {
   try {
-    const User = await user.findOne({ email });
+    const User = await user.findOne( {email} );
     
     if (!email || !otp) {
       throw new Error("Missing email or OTP");
@@ -281,7 +281,7 @@ const forgot_password = async (req,res) => {
 
 const resetpass = async ({ email, otp, newpassword }) => {
   try {
-    const isOTPVerified = await verifyOTPpass({ email, otp });
+    const isOTPVerified = await verifyOTPpass( {email, otp });
 
     if (isOTPVerified) {
       const hashedPassword = await bcrypt.hash(newpassword, 10);
