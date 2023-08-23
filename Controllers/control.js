@@ -198,31 +198,36 @@ const verifyOTP = async (req, res) => {
 
 // 
 
-const verifyOTPpass = async (req, res) => {
+const verifyOTPpass = async (email, otp) => {
   try {
-    const { email, otp } = req.body;
+    const User = await user.findOne({ email });
+    
     if (!email || !otp) {
       throw new Error("Missing email or OTP");
     }
 
-    const User = await user.findOne({ email });
+    
     if (!User) {
       throw new Error("User not found");
     }
 
     if (User.expiresat < Date.now()) {
+
       throw new Error("OTP has expired");
     }
 
     if (User.otp === otp) {
-      User.verification = true;
+      // User.verification = true;
       await User.save();
-      res.status(200).json({ msg: "Verification successful" });
+      // res.status(200).json({ msg: "Verification successful" });
+      return true ;
     } else {
-      res.status(401).json({ msg: "Incorrect OTP, please try again" });
+      // res.status(401).json({ msg: "Incorrect OTP, please try again" });
+      return false ; 
     }
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    // res.status(400).json({ error: err.message });
+    throw err
   }
 };
 
