@@ -17,7 +17,7 @@ const DetailsSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 5,
-    maxlength: 30,
+    maxlength: 100,
   },
   token: {
     type: String,
@@ -35,6 +35,10 @@ const DetailsSchema = new mongoose.Schema({
       const expire = 1 * 60 * 1000;
       return new Date(Date.now() + expire);
     },
+  },
+  verification: {
+    type: Boolean, 
+    default: false,
   },
 });
 
