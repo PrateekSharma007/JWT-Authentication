@@ -102,7 +102,7 @@ const signup = async (req, res, next) => {
         
         const save = await User.save();
         await sendOtpEmail(email, otp);
-        // res.json({ msg: token });
+       
         res.send(`Otp has been sent succesfully to ${email} , please verify it!`)
     } catch (err) {
         res.json({ msg: err });
@@ -138,7 +138,7 @@ const login = async (req, res, next) => {
         // res.json({ msg: token });
         res.send(`Otp has been sent succesfully to ${email} , please verify it!`)
       }
-      // console.log("2")
+      
 
 
       const token = jwt.sign(
@@ -149,7 +149,8 @@ const login = async (req, res, next) => {
 
       User.token = token;
       await User.save();
-      // res.json({ token });
+      
+      res.send("Login successfull")
     } else {
       return res.status(401).json({ msg: "Invalid credentials" });
     }
@@ -198,7 +199,7 @@ const verifyOTP = async (req, res) => {
 
 // 
 
-const verifyOTPpass = async (email, otp) => {
+const verifyOTPpass = async ({email, otp}) => {
   try {
     const User = await user.findOne( {email} );
     
@@ -207,7 +208,7 @@ const verifyOTPpass = async (email, otp) => {
     }
 
     
-    if (!User) {
+    if (!User) {v  
       throw new Error("User not found");
     }
 
